@@ -6,7 +6,7 @@ import android.view.SurfaceHolder;
 
 
 import com.desaco.imchat.utils.CameraUtil;
-import com.desaco.imchat.utils.LOG;
+import com.desaco.imchat.utils.LogUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,9 +26,7 @@ public class CameraCapture {
     private boolean isOpenBackCamera = true;
 
     private SurfaceTexture mSurface;
-
     private static CameraCapture sInstance = new CameraCapture();
-
     private int mCameraPosition = 1;
 
     private CameraCapture() {
@@ -40,24 +38,23 @@ public class CameraCapture {
         return sInstance;
     }
 
-
     /**
      * open back camera
      */
     public void openBackCamera() {
-        LOG.logI("Back Camera open....");
+        LogUtils.logI("Back Camera open....");
         int numberOfCameras = Camera.getNumberOfCameras();
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         for (int i = 0; i < numberOfCameras; i++) {
             Camera.getCameraInfo(i, cameraInfo);
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                LOG.logI("Back Camera open over....");
+                LogUtils.logI("Back Camera open over....");
                 mCamera = Camera.open(i);
                 isOpenBackCamera = true;
                 return;
             }
         }
-        LOG.logI("Back Camera open 异常!!!");
+        LogUtils.logI("Back Camera open 异常!!!");
         doStopCamera();
     }
 
@@ -65,22 +62,21 @@ public class CameraCapture {
      * open front camera
      */
     public void openFrontCamera() {
-        LOG.logI("Front Camera open....");
+        LogUtils.logI("Front Camera open....");
         int numberOfCameras = Camera.getNumberOfCameras();
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         for (int i = 0; i < numberOfCameras; i++) {
             Camera.getCameraInfo(i, cameraInfo);
             if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                LOG.logI("Front Camera open over....");
+                LogUtils.logI("Front Camera open over....");
                 mCamera = Camera.open(i);
                 isOpenBackCamera = false;
                 return;
             }
         }
-        LOG.logI("Front Camera open 异常!!!");
+        LogUtils.logI("Front Camera open 异常!!!");
         doStopCamera();
     }
-
 
 
     public void switchCamera(int cameraPosition) {
@@ -103,7 +99,7 @@ public class CameraCapture {
      * @param holder
      */
     public void doStartPreview(SurfaceHolder holder) {
-        LOG.logI("doStartPreview...");
+        LogUtils.logI("doStartPreview...");
         if (isPreviewing) {
             mCamera.stopPreview();
             return;
@@ -126,16 +122,16 @@ public class CameraCapture {
      * @param surface
      */
     public void doStartPreview(SurfaceTexture surface) {
-        LOG.logI("doStartPreview...");
+        LogUtils.logI("doStartPreview...");
         if (isPreviewing) {
-            LOG.logI("stopPreview...");
+            LogUtils.logI("stopPreview...");
             mCamera.stopPreview();
             return;
         }
         if (mCamera != null) {
             mSurface = surface;
             try {
-                LOG.logI("setPreviewTexture...");
+                LogUtils.logI("setPreviewTexture...");
                 mCamera.setPreviewTexture(surface);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -143,7 +139,6 @@ public class CameraCapture {
             }
             initCamera();
         }
-
     }
 
     /**
@@ -159,7 +154,6 @@ public class CameraCapture {
         }
     }
 
-
     public boolean isPreviewing() {
         return isPreviewing;
     }
@@ -167,7 +161,6 @@ public class CameraCapture {
     public boolean isOpenBackCamera() {
         return isOpenBackCamera;
     }
-
 
     private void initCamera() {
         if (mCamera != null) {
@@ -190,12 +183,11 @@ public class CameraCapture {
             isPreviewing = true;
 
             mParams = mCamera.getParameters(); //重新get一次
-            LOG.logI("最终设置:PreviewSize--With = " + mParams.getPreviewSize().width
+            LogUtils.logI("最终设置:PreviewSize--With = " + mParams.getPreviewSize().width
                     + "Height = " + mParams.getPreviewSize().height);
-            LOG.logI("最终设置:PictureSize--With = " + mParams.getPictureSize().width
+            LogUtils.logI("最终设置:PictureSize--With = " + mParams.getPictureSize().width
                     + "Height = " + mParams.getPictureSize().height);
         }
     }
-
 
 }

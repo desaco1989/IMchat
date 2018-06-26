@@ -29,7 +29,7 @@ public class CameraUtil {
 
         int i = 0;
         for (Camera.Size s : list) {
-            LOG.logI("PreviewSize:w = " + s.width + "h = " + s.height);
+            LogUtils.logI("PreviewSize:w = " + s.width + "h = " + s.height);
             if ((s.width >= minWidth) && equalRate(s, th)) {
 
                 break;
@@ -37,7 +37,7 @@ public class CameraUtil {
             i++;
         }
         if (i == list.size()) {
-            LOG.logE("找不到合适的预览尺寸！！！");
+            LogUtils.logE("找不到合适的预览尺寸！！！");
             i = 0;//如果没找到，就选最小的size
         }
         return list.get(i);

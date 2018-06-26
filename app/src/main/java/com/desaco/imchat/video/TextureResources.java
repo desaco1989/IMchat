@@ -50,7 +50,7 @@ public class TextureResources {
     }
 
     public Bitmap getPicBitmap() {
-        Bitmap bitmap = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_launcher);
+        Bitmap bitmap = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.pic1);
         Matrix matrix = new Matrix();
 //        matrix.setRotate(-90, bitmap.getWidth() / 2, bitmap.getHeight() / 2);
 //        matrix.preScale(0.25f,0.25f,0.5f,0.5f);

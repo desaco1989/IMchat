@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
  * @version 1.0
  * @date 2017/3/1
  */
-public class LOG {
+public class LogUtils {
 
     public static boolean SHOW_IN_LOGCAT = true;
     public static final int INFO = 0;

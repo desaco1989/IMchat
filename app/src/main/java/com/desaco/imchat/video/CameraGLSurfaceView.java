@@ -13,7 +13,7 @@ import android.view.ViewConfiguration;
 
 import com.desaco.imchat.utils.DisplayUtil;
 import com.desaco.imchat.utils.GlUtil;
-import com.desaco.imchat.utils.LOG;
+import com.desaco.imchat.utils.LogUtils;
 import com.desaco.imchat.video.gles.DirectDrawer;
 
 import java.util.ArrayList;
@@ -26,8 +26,11 @@ import javax.microedition.khronos.opengles.GL10;
  * @author liyachao 296777513
  * @version 1.0
  * @date 2017/3/1
+ * <p>
+ * 可以看成视频的推流
  */
 public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
+
     private Context mContext;
     private SurfaceTexture mSurface;
     private int mTextureID = -1;
@@ -68,8 +71,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 
     public CameraGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // TODO Auto-generated constructor stub
         mContext = context;
+
         // 设置OpenGl ES的版本为2.0
         setEGLContextClientVersion(2);
         // 设置与当前GLSurfaceView绑定的Renderer
@@ -77,64 +80,68 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         // 设置渲染的模式
         setRenderMode(RENDERMODE_WHEN_DIRTY);
 
-        mDirectDrawers = new ArrayList<>();
-
+        mDirectDrawersList = new ArrayList<>();
 
         mScreenWidth = DisplayUtil.getScreenWidthPixels(mContext);
         mScreenHeight = DisplayUtil.getScreenHeightPixels(mContext);
 
         ViewConfiguration configuration = ViewConfiguration.get(context);
         mTouchSlop = configuration.getScaledTouchSlop();//最小的滑动距离
-        mThumbnailWidth = mScreenWidth / 4f;
-        mThumbnailHeight = mScreenHeight / 4f;
+        mThumbnailWidth = mScreenWidth / 4f;//4f
+        mThumbnailHeight = mScreenHeight / 4f;//4f
 
         mMargin = DisplayUtil.dip2px(mContext, 2);
         mThumbnailRect = new RectF(mMargin,
                 (mScreenHeight - mMargin), (mMargin + mThumbnailWidth), (mScreenHeight - mMargin - mThumbnailHeight));
 
         mTextureResources = TextureResources.getInstance();
-
-
     }
 
-    private List<DirectDrawer> mDirectDrawers;
+    private List<DirectDrawer> mDirectDrawersList;
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        // TODO Auto-generated method stub
-        LOG.logI("onSurfaceCreated...");
+        LogUtils.logI("onSurfaceCreated...");
         mTextureID = GlUtil.createTextureID();
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
+
+        ////初始化时，视屏窗口
         mDirectDrawer = new DirectDrawer(mTextureID);
         mDirectDrawer.setFromCamera(true);
-        CameraCapture.get().openBackCamera();
 
+        //TODO 开启手机后摄像头
+        CameraCapture.get().openBackCamera();
+        //TODO 开启手机前置摄像头
+//        CameraCapture.get().openFrontCamera();
+
+        //初始化时，小窗口获取的图片
         mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
         mBitmapDirectDrawer = new DirectDrawer(mBitmapTextureID);
         mBitmapDirectDrawer.setFromCamera(false);
-        mDirectDrawers.add(mDirectDrawer);
-        mDirectDrawers.add(mBitmapDirectDrawer);
-        LOG.logI("mTextureID: " + mBitmapTextureID);
-        LOG.logI("mTextureID: " + mTextureID);
+
+        mDirectDrawersList.add(mDirectDrawer);
+        mDirectDrawersList.add(mBitmapDirectDrawer);
+
+        LogUtils.logI("mTextureID: " + mBitmapTextureID);
+        LogUtils.logI("mTextureID: " + mTextureID);
 
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        // TODO Auto-generated method stub
-        LOG.logI("onSurfaceChanged...");
+        LogUtils.logI("onSurfaceChanged...");
         // 设置OpenGL场景的大小,(0,0)表示窗口内部视口的左下角，(w,h)指定了视口的大小
         GLES20.glViewport(0, 0, width, height);
         if (!CameraCapture.get().isPreviewing()) {
+            //使用TextureView预览Camera
             CameraCapture.get().doStartPreview(mSurface);
         }
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        // TODO Auto-generated method stub
-        LOG.logI("onDrawFrame...");
+        LogUtils.logI("onDrawFrame...");
         // 设置白色为清屏
         GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         // 清除屏幕和深度缓存
@@ -143,8 +150,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         mSurface.updateTexImage();
 
         // mDirectDrawers中有两个对象，一个是绘制Camera传递过来的数据，一个是绘制由bitmap转换成的纹理
-        for (int i = 0; i < mDirectDrawers.size(); i++) {
-            DirectDrawer directDrawer = mDirectDrawers.get(i);
+        for (int i = 0; i < mDirectDrawersList.size(); i++) {
+            DirectDrawer directDrawer = mDirectDrawersList.get(i);
             if (i == 0) {
                 directDrawer.resetMatrix();
             } else {
@@ -162,7 +169,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
      * @param lengthY 在Y轴移动的距离
      * @param lengthX 在X轴移动的距离
      */
-    public void moveView(RectF rectF, float lengthY, float lengthX) {
+    public void moveView(RectF rectF, float lengthY, float lengthX) {//TODO 绘制小窗口
         rectF.top = rectF.top - (lengthY - mLastYLength);
         rectF.bottom = rectF.bottom - (lengthY - mLastYLength);
         rectF.left = rectF.left + (lengthX - mLastXLength);
@@ -242,13 +249,12 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     }
 
     private void changeThumbnailPosition() {
-        DirectDrawer directDrawer = mDirectDrawers.remove(mDirectDrawers.size() - 1);
-        mDirectDrawers.add(0, directDrawer);
+        DirectDrawer directDrawer = mDirectDrawersList.remove(mDirectDrawersList.size() - 1);
+        mDirectDrawersList.add(0, directDrawer);
     }
 
     @Override
     public void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
         CameraCapture.get().doStopCamera();
     }
@@ -256,8 +262,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        // TODO Auto-generated method stub
-        LOG.logI("onFrameAvailable...");
+        LogUtils.logI("onFrameAvailable...");
         this.requestRender();
     }
 
