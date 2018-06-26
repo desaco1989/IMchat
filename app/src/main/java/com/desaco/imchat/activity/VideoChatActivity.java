@@ -18,7 +18,10 @@ import java.io.IOException;
  * <p>
  * Android OpenGL渲染双视频（类微信视频聊天）- https://github.com/296777513/AndroidOpenGL
  * 视频聊天的推流和拉流，两人视频和多人视频聊天实现
+ *
  * 一个窗口播放视频，一个视频窗口推流(预览视频，推流)
+ *
+ * 大窗口播放视频，小视频窗口推流(预览视频，推流)
  */
 public class VideoChatActivity extends Activity implements View.OnClickListener {
 
@@ -35,43 +38,26 @@ public class VideoChatActivity extends Activity implements View.OnClickListener 
         mSwitchBtn.setOnClickListener(this);
     }
 
-    private MediaPlayer mediaPlayer;
-
-    public void play() {
-        mediaPlayer = new MediaPlayer();
-//        mVideoPathUri = Uri.parse("android.resource://" + this.getPackageName() + "/" + R.raw.tusdk_sample_splice_video);
-        String url = "http://www.w3school.com.cn/example/html5/mov_bbb.mp4";
-
-        try {
-//            mediaPlayer.setDataSource(this, mVideoPathUri);
-            mediaPlayer.setDataSource(url);
-//            mediaPlayer.setSurface(mCameraGLSurfaceView);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-    }
 
     @Override
     protected void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
         mCameraGLSurfaceView.bringToFront();
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-        }
     }
 
     @Override
     protected void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
         mCameraGLSurfaceView.onPause();
-        if (mediaPlayer != null) {
-            mediaPlayer.pause();
-        }
+        mCameraGLSurfaceView.pauseVideo();
+        mCameraGLSurfaceView.startVideo();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCameraGLSurfaceView.stopAndReleaseVideo();
+    }
 
     @Override
     public void onClick(View v) {
@@ -82,6 +68,6 @@ public class VideoChatActivity extends Activity implements View.OnClickListener 
             default:
                 break;
         }
-
     }
+
 }

@@ -3,11 +3,13 @@ package com.desaco.imchat.video;
 import android.content.Context;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
+import android.media.MediaPlayer;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.ViewConfiguration;
 
 
@@ -16,6 +18,7 @@ import com.desaco.imchat.utils.GlUtil;
 import com.desaco.imchat.utils.LogUtils;
 import com.desaco.imchat.video.gles.DirectDrawer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +36,11 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 
     private Context mContext;
     private SurfaceTexture mSurface;
+    private SurfaceTexture mSamllSurface;
+
     private int mTextureID = -1;
     private int mBitmapTextureID = -1;
+
     private DirectDrawer mDirectDrawer;
     private DirectDrawer mBitmapDirectDrawer;
 
@@ -102,11 +108,12 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         LogUtils.logI("onSurfaceCreated...");
+
         mTextureID = GlUtil.createTextureID();
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
 
-        ////初始化时，视屏窗口
+        //初始化时，视屏大窗口，播放视频
         mDirectDrawer = new DirectDrawer(mTextureID);
         mDirectDrawer.setFromCamera(true);
 
@@ -115,8 +122,13 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         //TODO 开启手机前置摄像头
 //        CameraCapture.get().openFrontCamera();
 
-        //初始化时，小窗口获取的图片
-        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
+        //初始化时，小窗口获取的图片，预览视频 推流
+//        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
+        mBitmapTextureID = GlUtil.createTextureID();
+        //----------- TODO
+        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
+        mSamllSurface.setOnFrameAvailableListener(this);
+        //-------------
         mBitmapDirectDrawer = new DirectDrawer(mBitmapTextureID);
         mBitmapDirectDrawer.setFromCamera(false);
 
@@ -125,7 +137,6 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 
         LogUtils.logI("mTextureID: " + mBitmapTextureID);
         LogUtils.logI("mTextureID: " + mTextureID);
-
     }
 
     @Override
@@ -136,6 +147,58 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         if (!CameraCapture.get().isPreviewing()) {
             //使用TextureView预览Camera
             CameraCapture.get().doStartPreview(mSurface);
+        }
+
+        playVideo();
+    }
+
+    private MediaPlayer mediaPlayer;
+
+    public void pauseVideo() {
+        if (mediaPlayer != null) {
+            mediaPlayer.pause();
+        }
+    }
+
+    public void startVideo() {
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+    }
+
+    public void stopAndReleaseVideo() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.setSurface(null);
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    private void playVideo() {//TODO
+        if (mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });
+            Surface surface = new Surface(mSamllSurface);
+            mediaPlayer.setSurface(surface);
+            surface.release();
+            try {
+                //http://video.netwin.cn/9e0e1e46a4d3493d9d6111a4ac0b8d12/193234ee930947478049edab17ac91ac-a5b7d8911cc7d347a9c9dd7e9b1d521b.mp4
+                // http://www.w3school.com.cn/example/html5/mov_bbb.mp4
+//                String videoPath = "http://video.netwin.cn/9e0e1e46a4d3493d9d6111a4ac0b8d12/193234ee930947478049edab17ac91ac-a5b7d8911cc7d347a9c9dd7e9b1d521b.mp4";
+                String videoPath = "http://video.netwin.cn/9e0e1e46a4d3493d9d6111a4ac0b8d12/193234ee930947478049edab17ac91ac-a5b7d8911cc7d347a9c9dd7e9b1d521b.mp4";
+                mediaPlayer.setDataSource(videoPath);
+                mediaPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mediaPlayer.start();
         }
     }
 
@@ -149,6 +212,9 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         // 更新纹理
         mSurface.updateTexImage();
 
+        //
+        mSamllSurface.updateTexImage();
+
         // mDirectDrawers中有两个对象，一个是绘制Camera传递过来的数据，一个是绘制由bitmap转换成的纹理
         for (int i = 0; i < mDirectDrawersList.size(); i++) {
             DirectDrawer directDrawer = mDirectDrawersList.get(i);
@@ -159,6 +225,13 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
             }
             directDrawer.draw();
         }
+
+        //TODO 更新窗口的视频纹理
+//        float[] mtx = new float[16];
+//        mSamllSurface.getTransformMatrix(mtx);
+//        mSamllSurface.updateTexImage();
+//        mBitmapDirectDrawer.draw();
+
     }
 
 
