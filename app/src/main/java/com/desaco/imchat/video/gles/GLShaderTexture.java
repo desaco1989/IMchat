@@ -13,6 +13,7 @@ import java.nio.ShortBuffer;
  * OpenGL Shader着色器
  */
 public class GLShaderTexture {
+
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
                     "attribute vec2 inputTextureCoordinate;" +
@@ -58,19 +59,6 @@ public class GLShaderTexture {
             1.0f, 0.0f,
             0.0f, 0.0f,
     };
-
-//    private static float squareSize = 1.0f;
-//    private static float squareCoords[] = {
-//            -squareSize, squareSize,   // top left
-//            -squareSize, -squareSize,   // bottom left
-//            squareSize, -squareSize,    // bottom right
-//            squareSize, squareSize}; // top right
-//    private float textureVertices[] = {
-//            0.0f, 1.0f, 0.0f, 1.0f,
-//            0.0f, 0.0f, 0.0f, 1.0f,
-//            1.0f, 0.0f, 0.0f, 1.0f,
-//            1.0f, 1.0f, 0.0f, 1.0f};
-
 
     private int texture;
 

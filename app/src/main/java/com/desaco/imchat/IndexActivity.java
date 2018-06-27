@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.desaco.imchat.activity.VideoChatActivity;
+import com.desaco.imchat.video_chat.GLVideoActivity;
 import com.desaco.imchat.video_chat.VideoChatActivity1;
 
 /**
@@ -39,6 +40,9 @@ public class IndexActivity extends Activity implements View.OnClickListener {
 
         Button chatVideo = (Button) findViewById(R.id.video_chat);
         chatVideo.setOnClickListener(this);
+        //R.id.
+        Button glVideo = (Button) findViewById(R.id.gl_video);
+        glVideo.setOnClickListener(this);
     }
 
     private void initData() {
@@ -49,12 +53,13 @@ public class IndexActivity extends Activity implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.preview_video:
-                //VideoChatActivity
                 jump(VideoChatActivity.class);
                 break;
             case R.id.video_chat:
-                //
                 jump(VideoChatActivity1.class);
+                break;
+            case R.id.gl_video:
+                jump(GLVideoActivity.class);
                 break;
             default:
                 break;

@@ -43,6 +43,7 @@ public class VideoChatActivity1 extends Activity implements View.OnClickListener
     protected void onResume() {
         super.onResume();
         mCameraGLSurfaceView.bringToFront();
+        mCameraGLSurfaceView.startVideo();
     }
 
     @Override
@@ -50,7 +51,6 @@ public class VideoChatActivity1 extends Activity implements View.OnClickListener
         super.onPause();
         mCameraGLSurfaceView.onPause();
         mCameraGLSurfaceView.pauseVideo();
-        mCameraGLSurfaceView.startVideo();
     }
 
     @Override

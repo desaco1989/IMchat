@@ -13,6 +13,7 @@ import android.view.Surface;
 import android.view.ViewConfiguration;
 
 
+import com.desaco.imchat.utils.CommonUtils;
 import com.desaco.imchat.utils.DisplayUtil;
 import com.desaco.imchat.utils.GlUtil;
 import com.desaco.imchat.utils.LogUtils;
@@ -34,8 +35,6 @@ import javax.microedition.khronos.opengles.GL10;
  * @date 2017/3/1
  * <p>
  * 可以看成视频的推流
- *
- * com.desaco.imchat.video_chat.CameraGLSurfaceView1
  */
 public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
 
@@ -106,10 +105,12 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
                 (mScreenHeight - mMargin), (mMargin + mThumbnailWidth), (mScreenHeight - mMargin - mThumbnailHeight));
 
         mTextureResources = TextureResources.getInstance();
+
+
     }
 
     private List<ShaderDirectDrawer> mDirectDrawersList;
-    private GLShaderTexture mGLShader;
+    private VideoShader mGLShader;//GLShaderTexture
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -119,10 +120,10 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
 
-//        mGLShader = new GLShaderTexture(mTextureID);
+        mGLShader = new VideoShader(mTextureID);
         //初始化时，视屏大窗口，播放视频
-        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
-        mDirectDrawer.setFromCamera(true);
+//        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
+//        mDirectDrawer.setFromCamera(false);
 
         //TODO 开启手机后摄像头
 //        CameraCapture.get().openBackCamera();
@@ -132,11 +133,11 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         //初始化时，小窗口获取的图片，预览视频 推流
 //        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
         //----------- TODO
-        mBitmapTextureID = GlUtil.createTextureID();
-        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
-        mSamllSurface.setOnFrameAvailableListener(this);
+//        mBitmapTextureID = GlUtil.createTextureID();
+//        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
+//        mSamllSurface.setOnFrameAvailableListener(this);
 
-        mGLShader = new GLShaderTexture(mBitmapTextureID);
+//        mGLShader = new VideoShader(mBitmapTextureID);
         //-------------
 //        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
 //        mBitmapDirectDrawer.setFromCamera(false);
@@ -146,10 +147,29 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
 
         LogUtils.logI("mTextureID: " + mBitmapTextureID);
         LogUtils.logI("mTextureID: " + mTextureID);
+
+
+        playVideo();
     }
+
+    private int width, height;
+    private boolean isHorizontalScreen;
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+
+        if (isHorizontalScreen) {
+            this.width = CommonUtils.getScreenWidth(mContext);
+            this.height = CommonUtils.getScreenHeight(mContext);
+            getLayoutParams().width = this.width;
+            getLayoutParams().height = this.height;
+        } else {
+            this.width = CommonUtils.getScreenWidth(mContext);
+            this.height = CommonUtils.getScreenWidth(mContext) * 9 / 16;
+            getLayoutParams().width = this.width;
+            getLayoutParams().height = this.height;
+        }
+
         LogUtils.logI("onSurfaceChanged...");
         // 设置OpenGL场景的大小,(0,0)表示窗口内部视口的左下角，(w,h)指定了视口的大小
         GLES20.glViewport(0, 0, width, height);
@@ -158,7 +178,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
 //            CameraCapture.get().doStartPreview(mSurface);
 //        }
 
-        playVideo();
+
     }
 
     @Override
@@ -186,10 +206,10 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         }
 
         //TODO 更新窗口的视频纹理
-        float[] mtx = new float[16];
-        mSamllSurface.getTransformMatrix(mtx);
-        mSamllSurface.updateTexImage();
-        mGLShader.draw(mtx);
+//        float[] mtx = new float[16];
+//        mSurface.getTransformMatrix(mtx);
+        mSurface.updateTexImage();
+        mGLShader.drawTexture();
 
 //        float[] mtx = new float[16];
 //        mSurface.getTransformMatrix(mtx);
@@ -236,7 +256,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
                     mp.start();
                 }
             });
-            Surface surface = new Surface(mSamllSurface);//mSamllSurface  mSurface
+            Surface surface = new Surface(mSurface);//mSamllSurface  mSurface
             mediaPlayer.setSurface(surface);
             surface.release();
             try {
