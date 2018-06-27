@@ -16,7 +16,8 @@ import android.view.ViewConfiguration;
 import com.desaco.imchat.utils.DisplayUtil;
 import com.desaco.imchat.utils.GlUtil;
 import com.desaco.imchat.utils.LogUtils;
-import com.desaco.imchat.video.gles.DirectDrawer;
+import com.desaco.imchat.video.gles.GLShaderTexture;
+import com.desaco.imchat.video.gles.ShaderDirectDrawer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,8 +42,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     private int mTextureID = -1;
     private int mBitmapTextureID = -1;
 
-    private DirectDrawer mDirectDrawer;
-    private DirectDrawer mBitmapDirectDrawer;
+    private ShaderDirectDrawer mDirectDrawer;
+    private ShaderDirectDrawer mBitmapDirectDrawer;
 
     private TextureResources mTextureResources;
 
@@ -103,7 +104,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         mTextureResources = TextureResources.getInstance();
     }
 
-    private List<DirectDrawer> mDirectDrawersList;
+    private List<ShaderDirectDrawer> mDirectDrawersList;
+    private GLShaderTexture mGLShader;
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -113,8 +115,9 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
 
+
         //初始化时，视屏大窗口，播放视频
-        mDirectDrawer = new DirectDrawer(mTextureID);
+        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
         mDirectDrawer.setFromCamera(true);
 
         //TODO 开启手机后摄像头
@@ -123,13 +126,13 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 //        CameraCapture.get().openFrontCamera();
 
         //初始化时，小窗口获取的图片，预览视频 推流
-//        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
-        mBitmapTextureID = GlUtil.createTextureID();
+        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
         //----------- TODO
-        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
-        mSamllSurface.setOnFrameAvailableListener(this);
+//        mBitmapTextureID = GlUtil.createTextureID();
+//        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
+//        mSamllSurface.setOnFrameAvailableListener(this);
         //-------------
-        mBitmapDirectDrawer = new DirectDrawer(mBitmapTextureID);
+        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
         mBitmapDirectDrawer.setFromCamera(false);
 
         mDirectDrawersList.add(mDirectDrawer);
@@ -149,7 +152,43 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
             CameraCapture.get().doStartPreview(mSurface);
         }
 
-        playVideo();
+//        playVideo();
+    }
+    @Override
+    public void onDrawFrame(GL10 gl) {
+        LogUtils.logI("onDrawFrame...");
+        // 设置白色为清屏
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        // 清除屏幕和深度缓存
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        // 更新纹理
+        mSurface.updateTexImage();
+
+        //
+//        mSamllSurface.updateTexImage();
+
+        // mDirectDrawers中有两个对象，一个是绘制Camera传递过来的数据，一个是绘制由bitmap转换成的纹理
+        for (int i = 0; i < mDirectDrawersList.size(); i++) {
+            ShaderDirectDrawer directDrawer = mDirectDrawersList.get(i);
+            if (i == 0) {
+                directDrawer.resetMatrix();
+            } else {
+                directDrawer.calculateMatrix(mThumbnailRect, mScreenWidth, mScreenHeight);
+            }
+            directDrawer.draw();
+        }
+
+        //TODO 更新窗口的视频纹理
+//        float[] mtx = new float[16];
+//        mSamllSurface.getTransformMatrix(mtx);
+//        mSamllSurface.updateTexImage();
+//        mBitmapDirectDrawer.draw();
+
+    }
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        LogUtils.logI("onFrameAvailable...");
+        this.requestRender();
     }
 
     private MediaPlayer mediaPlayer;
@@ -202,37 +241,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         }
     }
 
-    @Override
-    public void onDrawFrame(GL10 gl) {
-        LogUtils.logI("onDrawFrame...");
-        // 设置白色为清屏
-        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        // 清除屏幕和深度缓存
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        // 更新纹理
-        mSurface.updateTexImage();
 
-        //
-        mSamllSurface.updateTexImage();
-
-        // mDirectDrawers中有两个对象，一个是绘制Camera传递过来的数据，一个是绘制由bitmap转换成的纹理
-        for (int i = 0; i < mDirectDrawersList.size(); i++) {
-            DirectDrawer directDrawer = mDirectDrawersList.get(i);
-            if (i == 0) {
-                directDrawer.resetMatrix();
-            } else {
-                directDrawer.calculateMatrix(mThumbnailRect, mScreenWidth, mScreenHeight);
-            }
-            directDrawer.draw();
-        }
-
-        //TODO 更新窗口的视频纹理
-//        float[] mtx = new float[16];
-//        mSamllSurface.getTransformMatrix(mtx);
-//        mSamllSurface.updateTexImage();
-//        mBitmapDirectDrawer.draw();
-
-    }
 
 
     /**
@@ -322,7 +331,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     }
 
     private void changeThumbnailPosition() {
-        DirectDrawer directDrawer = mDirectDrawersList.remove(mDirectDrawersList.size() - 1);
+        ShaderDirectDrawer directDrawer = mDirectDrawersList.remove(mDirectDrawersList.size() - 1);
         mDirectDrawersList.add(0, directDrawer);
     }
 
@@ -333,11 +342,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     }
 
 
-    @Override
-    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-        LogUtils.logI("onFrameAvailable...");
-        this.requestRender();
-    }
+
 
     public void switchCamera() {
         CameraCapture.get().switchCamera(1);

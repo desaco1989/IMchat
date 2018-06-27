@@ -16,7 +16,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class DirectDrawer {
+public class ShaderDirectDrawer {
     // 顶点缓存
     private FloatBuffer vertexBuffer;
     // 纹理坐标映射缓存
@@ -71,7 +71,7 @@ public class DirectDrawer {
     }
 
 
-    public DirectDrawer(int texture) {
+    public ShaderDirectDrawer(int texture) {
         String vertextShader = TextResourceReader.readTextFileFromResource(MyApplication.getContext()
                 , R.raw.video_vertex_shader);
         String fragmentShader;
@@ -99,9 +99,7 @@ public class DirectDrawer {
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
         GlUtil.checkLocation(mMVPMatrixHandle, "uMVPMatrix");
 
-
         this.texture = texture;
-
 
         setTexCoords();
 
