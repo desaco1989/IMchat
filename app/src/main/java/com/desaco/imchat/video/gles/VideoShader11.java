@@ -1,6 +1,5 @@
-package com.desaco.imchat.video_chat;
+package com.desaco.imchat.video.gles;
 
-import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
@@ -20,7 +19,7 @@ import java.nio.ShortBuffer;
  * Created by desaco on 2018/6/27.
  */
 
-public class VideoShader {
+public class VideoShader11 {
 
     private final String vertexShaderCode = "attribute vec4 vPosition;\n" +
             "attribute vec4 vTexCoordinate;\n" +
@@ -63,25 +62,17 @@ public class VideoShader {
     int positionHandle;
     int textureTranformHandle;
     private float[] videoTextureTransform = new float[16];
-    private int[] textures = new int[1];
+    private int[] textures;
 
-    public VideoShader(Context context, int texture) {
+    public VideoShader11(int texture) {
         textures[0] = texture;
 //        this.texture = texture;
 
-//        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-//        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-//
-//        shaderProgram = ShaderHelper.createAndLinkProgram(vertexShader, fragmentShader,
-//                new String[]{"texture", "vPosition", "vTexCoordinate", "textureTransform"});
-        final String vertexShader = RawResourceReader.readTextFileFromRawResource(context, R.raw.vetext_sharder);
-        final String fragmentShader = RawResourceReader.readTextFileFromRawResource(context, R.raw.fragment_sharder);
+        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
-        final int vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexShader);
-        final int fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader);
-        shaderProgram = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle,
+        shaderProgram = ShaderHelper.createAndLinkProgram(vertexShader, fragmentShader,
                 new String[]{"texture", "vPosition", "vTexCoordinate", "textureTransform"});
-
 
         GLES20.glUseProgram(shaderProgram);
         textureParamHandle = GLES20.glGetUniformLocation(shaderProgram, "texture");
@@ -131,19 +122,103 @@ public class VideoShader {
         return shader;
     }
 
+//    public void drawTexture() {
+//        // Draw texture
+//        GLES20.glEnableVertexAttribArray(positionHandle);
+//        GLES20.glVertexAttribPointer(positionHandle, 2, GLES20.GL_FLOAT, false, 0, vertexBuffer);
+//
+////        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
+//        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+//        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture);
+//
+//        GLES20.glUniform1i(textureParamHandle, 0);
+//
+//        GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
+//        GLES20.glVertexAttribPointer(textureCoordinateHandle, 4, GLES20.GL_FLOAT, false, 0, textureVerticesBuffer);
+//
+//        GLES20.glUniformMatrix4fv(textureTranformHandle, 1, false, videoTextureTransform, 0);
+//
+//        GLES20.glDrawElements(GLES20.GL_TRIANGLE_STRIP, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
+//        GLES20.glDisableVertexAttribArray(positionHandle);
+//        GLES20.glDisableVertexAttribArray(textureCoordinateHandle);
+//    }
+
+    public void checkGlError(String op) {
+        int error;
+        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+            Log.e("SurfaceTest", op + ": glError " + GLUtils.getEGLErrorString(error));
+        }
+    }
+
+    public VideoShader11(int ver[]) {
+        textures = ver;
+        setupGraphics();
+        setupVertexBuffer();
+        setupTexture();
+    }
+
+    private void setupGraphics() {
+//        final String vertexShader = RawResourceReader.readTextFileFromRawResource(context, R.raw.vetext_sharder);
+//        final String fragmentShader = RawResourceReader.readTextFileFromRawResource(context, R.raw.fragment_sharder);
+        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+//         int vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexShader);
+//         int fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader);
+        shaderProgram = ShaderHelper.createAndLinkProgram(vertexShader, fragmentShader,
+                new String[]{"texture", "vPosition", "vTexCoordinate", "textureTransform"});
+
+        GLES20.glUseProgram(shaderProgram);
+        textureParamHandle = GLES20.glGetUniformLocation(shaderProgram, "texture");
+        textureCoordinateHandle = GLES20.glGetAttribLocation(shaderProgram, "vTexCoordinate");
+        positionHandle = GLES20.glGetAttribLocation(shaderProgram, "vPosition");
+        textureTranformHandle = GLES20.glGetUniformLocation(shaderProgram, "textureTransform");
+    }
+
+    private void setupVertexBuffer() {
+        // Draw list buffer
+        ByteBuffer dlb = ByteBuffer.allocateDirect(drawOrder.length * 2);
+        dlb.order(ByteOrder.nativeOrder());
+        drawListBuffer = dlb.asShortBuffer();
+        drawListBuffer.put(drawOrder);
+        drawListBuffer.position(0);
+
+        // Initialize the texture holder
+        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        vertexBuffer = bb.asFloatBuffer();
+        vertexBuffer.put(squareCoords);
+        vertexBuffer.position(0);
+    }
+
+    private void setupTexture() {
+        ByteBuffer texturebb = ByteBuffer.allocateDirect(textureCoords.length * 4);
+        texturebb.order(ByteOrder.nativeOrder());
+
+        textureVerticesBuffer = texturebb.asFloatBuffer();
+        textureVerticesBuffer.put(textureCoords);
+        textureVerticesBuffer.position(0);
+
+        // Generate the actual texture
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glGenTextures(1, textures, 0);
+        checkGlError("Texture generate");
+
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
+        checkGlError("Texture bind");
+
+//
+    }
+    private SurfaceTexture videoTexture;
+
     public void drawTexture() {
-//        GLES20.glUseProgram(shaderProgram);
-
-//        GLES20.glGenTextures(1, textures, 0);
-
         // Draw texture
+
         GLES20.glEnableVertexAttribArray(positionHandle);
         GLES20.glVertexAttribPointer(positionHandle, 2, GLES20.GL_FLOAT, false, 0, vertexBuffer);
 
-//        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textures[0]);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture);
-
         GLES20.glUniform1i(textureParamHandle, 0);
 
         GLES20.glEnableVertexAttribArray(textureCoordinateHandle);
@@ -154,13 +229,6 @@ public class VideoShader {
         GLES20.glDrawElements(GLES20.GL_TRIANGLE_STRIP, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
         GLES20.glDisableVertexAttribArray(positionHandle);
         GLES20.glDisableVertexAttribArray(textureCoordinateHandle);
-    }
-
-    public void checkGlError(String op) {
-        int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            Log.e("SurfaceTest", op + ": glError " + GLUtils.getEGLErrorString(error));
-        }
     }
 
 }

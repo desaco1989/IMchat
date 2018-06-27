@@ -120,7 +120,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
 
-        mGLShader = new VideoShader(mTextureID);
+        mGLShader = new VideoShader(mContext,mTextureID);
         //初始化时，视屏大窗口，播放视频
 //        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
 //        mDirectDrawer.setFromCamera(false);

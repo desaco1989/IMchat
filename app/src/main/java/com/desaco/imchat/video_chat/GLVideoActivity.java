@@ -31,7 +31,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 /**
  * https://github.com/ChouRay/PlayVideo-OpenGL
- *
+ * <p>
  * 没有分离了OpenGL Shader着色器代码
  */
 public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener, View.OnClickListener {
@@ -93,7 +93,7 @@ public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer,
 
         initView();
 
-        playVideo();
+//        playVideo();
         Toast.makeText(this, "马上开始播放！", Toast.LENGTH_SHORT).show();
     }
 
@@ -158,7 +158,9 @@ public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer,
                     mp.start();
                 }
             });
-
+            Surface surface = new Surface(videoTexture);//mSamllSurface  mSurface
+            mediaPlayer.setSurface(surface);
+            surface.release();
             try {
                 //http://video.netwin.cn/9e0e1e46a4d3493d9d6111a4ac0b8d12/193234ee930947478049edab17ac91ac-a5b7d8911cc7d347a9c9dd7e9b1d521b.mp4
                 // http://www.w3school.com.cn/example/html5/mov_bbb.mp4
@@ -192,6 +194,8 @@ public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer,
         }
     }
 
+    private VideoShader mGLShader;
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 //        Log.e("desaco", "onSurfaceCreated 屏幕创建！");
@@ -200,13 +204,12 @@ public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer,
 //        setupTexture();
 
         int mTextureID = GlUtil.createTextureID();
-        videoTexture = new SurfaceTexture(mTextureID);
-        videoTexture.setOnFrameAvailableListener(this);
-        VideoShader mGLShader = new VideoShader(mTextureID);
+        mGLShader = new VideoShader(context,0);
 
-        Surface surface = new Surface(videoTexture);//mSamllSurface  mSurface
-        mediaPlayer.setSurface(surface);
-        surface.release();
+        videoTexture = new SurfaceTexture(0);
+        videoTexture.setOnFrameAvailableListener(this);
+
+
     }
 
     @Override
@@ -225,7 +228,7 @@ public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer,
             glView.getLayoutParams().width = this.width;
             glView.getLayoutParams().height = this.height;
         }
-
+        playVideo();
 
     }
 
@@ -242,7 +245,8 @@ public class GLVideoActivity extends Activity implements GLSurfaceView.Renderer,
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         GLES20.glViewport(0, 0, width, height);//TODO
-//        this.drawTexture();//TODO
+
+        mGLShader.drawTexture();//TODO
     }
 
     @Override
