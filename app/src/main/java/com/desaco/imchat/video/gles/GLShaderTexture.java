@@ -59,6 +59,19 @@ public class GLShaderTexture {
             0.0f, 0.0f,
     };
 
+//    private static float squareSize = 1.0f;
+//    private static float squareCoords[] = {
+//            -squareSize, squareSize,   // top left
+//            -squareSize, -squareSize,   // bottom left
+//            squareSize, -squareSize,    // bottom right
+//            squareSize, squareSize}; // top right
+//    private float textureVertices[] = {
+//            0.0f, 1.0f, 0.0f, 1.0f,
+//            0.0f, 0.0f, 0.0f, 1.0f,
+//            1.0f, 0.0f, 0.0f, 1.0f,
+//            1.0f, 1.0f, 0.0f, 1.0f};
+
+
     private int texture;
 
     public GLShaderTexture(int texture) {

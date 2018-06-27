@@ -1,4 +1,4 @@
-package com.desaco.imchat.video;
+package com.desaco.imchat.video_chat;
 
 import android.content.Context;
 import android.graphics.RectF;
@@ -16,6 +16,8 @@ import android.view.ViewConfiguration;
 import com.desaco.imchat.utils.DisplayUtil;
 import com.desaco.imchat.utils.GlUtil;
 import com.desaco.imchat.utils.LogUtils;
+import com.desaco.imchat.video.CameraCapture;
+import com.desaco.imchat.video.TextureResources;
 import com.desaco.imchat.video.gles.GLShaderTexture;
 import com.desaco.imchat.video.gles.ShaderDirectDrawer;
 
@@ -32,8 +34,10 @@ import javax.microedition.khronos.opengles.GL10;
  * @date 2017/3/1
  * <p>
  * 可以看成视频的推流
+ *
+ * com.desaco.imchat.video_chat.CameraGLSurfaceView1
  */
-public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
+public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
 
     private Context mContext;
     private SurfaceTexture mSurface;
@@ -76,7 +80,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     private float mLastYLength = 0;
     private float mLastXLength = 0;
 
-    public CameraGLSurfaceView(Context context, AttributeSet attrs) {
+    public CameraGLSurfaceView1(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
 
@@ -115,28 +119,30 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
 
-
+//        mGLShader = new GLShaderTexture(mTextureID);
         //初始化时，视屏大窗口，播放视频
         mDirectDrawer = new ShaderDirectDrawer(mTextureID);
         mDirectDrawer.setFromCamera(true);
 
         //TODO 开启手机后摄像头
-        CameraCapture.get().openBackCamera();
+//        CameraCapture.get().openBackCamera();
         //TODO 开启手机前置摄像头
 //        CameraCapture.get().openFrontCamera();
 
         //初始化时，小窗口获取的图片，预览视频 推流
-        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
+//        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
         //----------- TODO
-//        mBitmapTextureID = GlUtil.createTextureID();
-//        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
-//        mSamllSurface.setOnFrameAvailableListener(this);
-        //-------------
-        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
-        mBitmapDirectDrawer.setFromCamera(false);
+        mBitmapTextureID = GlUtil.createTextureID();
+        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
+        mSamllSurface.setOnFrameAvailableListener(this);
 
-        mDirectDrawersList.add(mDirectDrawer);
-        mDirectDrawersList.add(mBitmapDirectDrawer);
+        mGLShader = new GLShaderTexture(mBitmapTextureID);
+        //-------------
+//        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
+//        mBitmapDirectDrawer.setFromCamera(false);
+
+//        mDirectDrawersList.add(mDirectDrawer);
+//        mDirectDrawersList.add(mBitmapDirectDrawer);
 
         LogUtils.logI("mTextureID: " + mBitmapTextureID);
         LogUtils.logI("mTextureID: " + mTextureID);
@@ -147,13 +153,14 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         LogUtils.logI("onSurfaceChanged...");
         // 设置OpenGL场景的大小,(0,0)表示窗口内部视口的左下角，(w,h)指定了视口的大小
         GLES20.glViewport(0, 0, width, height);
-        if (!CameraCapture.get().isPreviewing()) {
-            //使用TextureView预览Camera
-            CameraCapture.get().doStartPreview(mSurface);
-        }
+//        if (!CameraCapture.get().isPreviewing()) {
+//            //使用TextureView预览Camera
+//            CameraCapture.get().doStartPreview(mSurface);
+//        }
 
-//        playVideo();
+        playVideo();
     }
+
     @Override
     public void onDrawFrame(GL10 gl) {
         LogUtils.logI("onDrawFrame...");
@@ -162,7 +169,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         // 清除屏幕和深度缓存
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // 更新纹理
-        mSurface.updateTexImage();
+//        mSurface.updateTexImage();
 
         //
 //        mSamllSurface.updateTexImage();
@@ -179,12 +186,18 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         }
 
         //TODO 更新窗口的视频纹理
+        float[] mtx = new float[16];
+        mSamllSurface.getTransformMatrix(mtx);
+        mSamllSurface.updateTexImage();
+        mGLShader.draw(mtx);
+
 //        float[] mtx = new float[16];
-//        mSamllSurface.getTransformMatrix(mtx);
-//        mSamllSurface.updateTexImage();
-//        mBitmapDirectDrawer.draw();
+//        mSurface.getTransformMatrix(mtx);
+//        mSurface.updateTexImage();
+//        mGLShader.draw(mtx);
 
     }
+
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         LogUtils.logI("onFrameAvailable...");
@@ -223,7 +236,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
                     mp.start();
                 }
             });
-            Surface surface = new Surface(mSamllSurface);
+            Surface surface = new Surface(mSamllSurface);//mSamllSurface  mSurface
             mediaPlayer.setSurface(surface);
             surface.release();
             try {
@@ -240,9 +253,6 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
             mediaPlayer.start();
         }
     }
-
-
-
 
     /**
      * 移动小视频
@@ -280,7 +290,6 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         mLastYLength = lengthY;
         mLastXLength = lengthX;
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -340,9 +349,6 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         super.onPause();
         CameraCapture.get().doStopCamera();
     }
-
-
-
 
     public void switchCamera() {
         CameraCapture.get().switchCamera(1);
