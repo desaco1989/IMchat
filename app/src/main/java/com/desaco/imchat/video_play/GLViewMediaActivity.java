@@ -88,7 +88,7 @@ public class GLViewMediaActivity extends Activity implements GLSurfaceView.Rende
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_glview_media);
+        setContentView(R.layout.activity_glview_video);
         context = this;
 
         initView();

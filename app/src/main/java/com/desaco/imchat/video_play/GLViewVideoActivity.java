@@ -40,14 +40,7 @@ public class GLViewVideoActivity extends Activity implements GLSurfaceView.Rende
     public static final String videoPath = Environment.getExternalStorageDirectory().getPath() + "/Movies/不将就.mp4";
 
     private boolean frameAvailable = false;
-    int textureParamHandle;
-    int textureCoordinateHandle;
-    int positionHandle;
-    int textureTranformHandle;
-    //com.asha.md360player4android.commonVideo.GLViewMediaActivity
-    /**
-     *
-     */
+
     private static short drawOrder[] = {0, 1, 2, 0, 2, 3};
 
     private Context context;
@@ -68,10 +61,6 @@ public class GLViewVideoActivity extends Activity implements GLSurfaceView.Rende
 
     private int width, height;
 
-    private int shaderProgram;
-    private FloatBuffer vertexBuffer;
-    private ShortBuffer drawListBuffer;
-
     private SurfaceTexture videoTexture;
     private GLSurfaceView glView;
     private MediaPlayer mediaPlayer;
@@ -79,12 +68,11 @@ public class GLViewVideoActivity extends Activity implements GLSurfaceView.Rende
     private FrameLayout mRootFLayout;
     private ImageView mFullHalfIv;
     private LinearLayout mRootLayoutGL;
-    //root_layout
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_glview_media);
+        setContentView(R.layout.activity_glview_video);
         context = this;
 
         initView();
@@ -195,9 +183,6 @@ public class GLViewVideoActivity extends Activity implements GLSurfaceView.Rende
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.e("desaco", "1.onSurfaceCreated 屏幕创建！");
-//        setupGraphics();
-//        setupVertexBuffer();
-//        setupTexture();
 
         mGLShader = new GLShader(context,textures);
         videoTexture = new SurfaceTexture(textures[0]);

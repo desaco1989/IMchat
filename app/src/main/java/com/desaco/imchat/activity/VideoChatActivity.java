@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.desaco.imchat.R;
+import com.desaco.imchat.video_shader_utils.CameraChatGLSurfaceView;
 import com.desaco.imchat.video_shader_utils.CameraGLSurfaceView;
 
 
@@ -20,15 +21,15 @@ import com.desaco.imchat.video_shader_utils.CameraGLSurfaceView;
  */
 public class VideoChatActivity extends Activity implements View.OnClickListener {
 
-    CameraGLSurfaceView mCameraGLSurfaceView;
+    CameraChatGLSurfaceView mCameraGLSurfaceView;
     Button mSwitchBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_video_chat);
 
-        mCameraGLSurfaceView = (CameraGLSurfaceView) findViewById(R.id.camera_gl_surface_view);
+        mCameraGLSurfaceView = (CameraChatGLSurfaceView) findViewById(R.id.camera_gl_surface_view);
         mSwitchBtn = (Button) findViewById(R.id.switch_camera);
         mSwitchBtn.setOnClickListener(this);
     }

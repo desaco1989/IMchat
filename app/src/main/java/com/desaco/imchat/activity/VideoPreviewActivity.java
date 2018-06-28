@@ -26,7 +26,7 @@ public class VideoPreviewActivity extends Activity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_camera_preview);
 
         mCameraGLSurfaceView = (CameraGLSurfaceView) findViewById(R.id.camera_gl_surface_view);
         mSwitchBtn = (Button) findViewById(R.id.switch_camera);
