@@ -1,4 +1,4 @@
-package com.desaco.imchat.video;
+package com.desaco.imchat.video_shader_utils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

@@ -1,4 +1,4 @@
-package com.desaco.imchat.video.gles;
+package com.desaco.imchat.video_shader_utils.gles;
 
 import android.graphics.RectF;
 import android.opengl.GLES11Ext;

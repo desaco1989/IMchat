@@ -1,17 +1,12 @@
-package com.desaco.imchat.video_chat;
+package com.desaco.imchat.activity;
 
 import android.app.Activity;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
 import com.desaco.imchat.R;
-import com.desaco.imchat.video.CameraGLSurfaceView;
-
-import java.io.IOException;
+import com.desaco.imchat.video_shader_utils.CameraGLSurfaceView;
 
 
 /**
@@ -23,17 +18,17 @@ import java.io.IOException;
  *
  * 大窗口播放视频，小视频窗口推流(预览视频，推流)
  */
-public class VideoChatActivity1 extends Activity implements View.OnClickListener {
+public class VideoPreviewActivity extends Activity implements View.OnClickListener {
 
-    CameraGLSurfaceView1 mCameraGLSurfaceView;
+    CameraGLSurfaceView mCameraGLSurfaceView;
     Button mSwitchBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video);
+        setContentView(R.layout.activity_main);
 
-        mCameraGLSurfaceView = (CameraGLSurfaceView1) findViewById(R.id.camera_gl_surface_view);
+        mCameraGLSurfaceView = (CameraGLSurfaceView) findViewById(R.id.camera_gl_surface_view);
         mSwitchBtn = (Button) findViewById(R.id.switch_camera);
         mSwitchBtn.setOnClickListener(this);
     }
@@ -43,7 +38,6 @@ public class VideoChatActivity1 extends Activity implements View.OnClickListener
     protected void onResume() {
         super.onResume();
         mCameraGLSurfaceView.bringToFront();
-        mCameraGLSurfaceView.startVideo();
     }
 
     @Override
@@ -51,6 +45,7 @@ public class VideoChatActivity1 extends Activity implements View.OnClickListener
         super.onPause();
         mCameraGLSurfaceView.onPause();
         mCameraGLSurfaceView.pauseVideo();
+        mCameraGLSurfaceView.startVideo();
     }
 
     @Override

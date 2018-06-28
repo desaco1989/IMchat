@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
-        android:text="GlView预览视频"
+        android:text="GlView预览，拍照，视频"
         android:textAllCaps="false" />
 
     <Button
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
-        android:text="GlView视频聊天"
+        android:text="GlView视频聊天，推流和拉流"
         android:textAllCaps="false" />
 
     <Button
@@ -36,7 +36,16 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
-        android:text="GlView视频"
+        android:text="GlView播放视频，分离了Shader"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/gl_video2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:text="GlView播放视频，未分离Shader"
         android:textAllCaps="false" />
 
 </LinearLayout>

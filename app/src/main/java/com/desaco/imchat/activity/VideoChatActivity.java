@@ -1,17 +1,12 @@
 package com.desaco.imchat.activity;
 
 import android.app.Activity;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
 import com.desaco.imchat.R;
-import com.desaco.imchat.video.CameraGLSurfaceView;
-
-import java.io.IOException;
+import com.desaco.imchat.video_shader_utils.CameraGLSurfaceView;
 
 
 /**

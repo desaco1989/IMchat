@@ -1,4 +1,4 @@
-package com.desaco.imchat.video_chat;
+package com.desaco.imchat.video_shader_utils;
 
 import android.content.Context;
 import android.graphics.RectF;
@@ -13,14 +13,11 @@ import android.view.Surface;
 import android.view.ViewConfiguration;
 
 
-import com.desaco.imchat.utils.CommonUtils;
 import com.desaco.imchat.utils.DisplayUtil;
 import com.desaco.imchat.utils.GlUtil;
 import com.desaco.imchat.utils.LogUtils;
-import com.desaco.imchat.video.CameraCapture;
-import com.desaco.imchat.video.TextureResources;
-import com.desaco.imchat.video.gles.GLShaderTexture;
-import com.desaco.imchat.video.gles.ShaderDirectDrawer;
+import com.desaco.imchat.video_shader_utils.gles.GLShaderTexture;
+import com.desaco.imchat.video_shader_utils.gles.ShaderDirectDrawer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +33,7 @@ import javax.microedition.khronos.opengles.GL10;
  * <p>
  * 可以看成视频的推流
  */
-public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
+public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
 
     private Context mContext;
     private SurfaceTexture mSurface;
@@ -79,7 +76,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
     private float mLastYLength = 0;
     private float mLastXLength = 0;
 
-    public CameraGLSurfaceView1(Context context, AttributeSet attrs) {
+    public CameraGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
 
@@ -105,12 +102,10 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
                 (mScreenHeight - mMargin), (mMargin + mThumbnailWidth), (mScreenHeight - mMargin - mThumbnailHeight));
 
         mTextureResources = TextureResources.getInstance();
-
-
     }
 
     private List<ShaderDirectDrawer> mDirectDrawersList;
-    private VideoShader mGLShader;//GLShaderTexture
+    private GLShaderTexture mGLShader;
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -120,67 +115,45 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
 
-        mGLShader = new VideoShader(mContext,mTextureID);
+
         //初始化时，视屏大窗口，播放视频
-//        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
-//        mDirectDrawer.setFromCamera(false);
+        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
+        mDirectDrawer.setFromCamera(true);
 
         //TODO 开启手机后摄像头
-//        CameraCapture.get().openBackCamera();
+        CameraCapture.get().openBackCamera();
         //TODO 开启手机前置摄像头
 //        CameraCapture.get().openFrontCamera();
 
         //初始化时，小窗口获取的图片，预览视频 推流
-//        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
+        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
         //----------- TODO
 //        mBitmapTextureID = GlUtil.createTextureID();
 //        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
 //        mSamllSurface.setOnFrameAvailableListener(this);
-
-//        mGLShader = new VideoShader(mBitmapTextureID);
         //-------------
-//        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
-//        mBitmapDirectDrawer.setFromCamera(false);
+        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
+        mBitmapDirectDrawer.setFromCamera(false);
 
-//        mDirectDrawersList.add(mDirectDrawer);
-//        mDirectDrawersList.add(mBitmapDirectDrawer);
+        mDirectDrawersList.add(mDirectDrawer);
+        mDirectDrawersList.add(mBitmapDirectDrawer);
 
         LogUtils.logI("mTextureID: " + mBitmapTextureID);
         LogUtils.logI("mTextureID: " + mTextureID);
-
-
-        playVideo();
     }
-
-    private int width, height;
-    private boolean isHorizontalScreen;
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-
-        if (isHorizontalScreen) {
-            this.width = CommonUtils.getScreenWidth(mContext);
-            this.height = CommonUtils.getScreenHeight(mContext);
-            getLayoutParams().width = this.width;
-            getLayoutParams().height = this.height;
-        } else {
-            this.width = CommonUtils.getScreenWidth(mContext);
-            this.height = CommonUtils.getScreenWidth(mContext) * 9 / 16;
-            getLayoutParams().width = this.width;
-            getLayoutParams().height = this.height;
-        }
-
         LogUtils.logI("onSurfaceChanged...");
         // 设置OpenGL场景的大小,(0,0)表示窗口内部视口的左下角，(w,h)指定了视口的大小
         GLES20.glViewport(0, 0, width, height);
-//        if (!CameraCapture.get().isPreviewing()) {
-//            //使用TextureView预览Camera
-//            CameraCapture.get().doStartPreview(mSurface);
-//        }
+        if (!CameraCapture.get().isPreviewing()) {
+            //使用TextureView预览Camera
+            CameraCapture.get().doStartPreview(mSurface);
+        }
 
-
+//        playVideo();
     }
-
     @Override
     public void onDrawFrame(GL10 gl) {
         LogUtils.logI("onDrawFrame...");
@@ -189,7 +162,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         // 清除屏幕和深度缓存
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // 更新纹理
-//        mSurface.updateTexImage();
+        mSurface.updateTexImage();
 
         //
 //        mSamllSurface.updateTexImage();
@@ -207,17 +180,11 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
 
         //TODO 更新窗口的视频纹理
 //        float[] mtx = new float[16];
-//        mSurface.getTransformMatrix(mtx);
-        mSurface.updateTexImage();
-        mGLShader.drawTexture();
-
-//        float[] mtx = new float[16];
-//        mSurface.getTransformMatrix(mtx);
-//        mSurface.updateTexImage();
-//        mGLShader.draw(mtx);
+//        mSamllSurface.getTransformMatrix(mtx);
+//        mSamllSurface.updateTexImage();
+//        mBitmapDirectDrawer.draw();
 
     }
-
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         LogUtils.logI("onFrameAvailable...");
@@ -256,7 +223,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
                     mp.start();
                 }
             });
-            Surface surface = new Surface(mSurface);//mSamllSurface  mSurface
+            Surface surface = new Surface(mSamllSurface);
             mediaPlayer.setSurface(surface);
             surface.release();
             try {
@@ -273,6 +240,9 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
             mediaPlayer.start();
         }
     }
+
+
+
 
     /**
      * 移动小视频
@@ -310,6 +280,7 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         mLastYLength = lengthY;
         mLastXLength = lengthX;
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -369,6 +340,9 @@ public class CameraGLSurfaceView1 extends GLSurfaceView implements Renderer, Sur
         super.onPause();
         CameraCapture.get().doStopCamera();
     }
+
+
+
 
     public void switchCamera() {
         CameraCapture.get().switchCamera(1);

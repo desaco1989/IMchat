@@ -9,8 +9,9 @@ import android.view.View;
 import android.widget.Button;
 
 import com.desaco.imchat.activity.VideoChatActivity;
-import com.desaco.imchat.video_chat.GLVideoActivity;
-import com.desaco.imchat.video_chat.VideoChatActivity1;
+import com.desaco.imchat.activity.VideoPreviewActivity;
+import com.desaco.imchat.video_play.GLViewMediaActivity;
+import com.desaco.imchat.video_play.GLViewVideoActivity;
 
 /**
  * Created by desaco on 2018/6/26.
@@ -43,6 +44,9 @@ public class IndexActivity extends Activity implements View.OnClickListener {
         //R.id.
         Button glVideo = (Button) findViewById(R.id.gl_video);
         glVideo.setOnClickListener(this);
+        //
+        Button glVideo2 = (Button) findViewById(R.id.gl_video2);
+        glVideo2.setOnClickListener(this);
     }
 
     private void initData() {
@@ -52,14 +56,17 @@ public class IndexActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.preview_video:
+            case R.id.preview_video://预览视频
+                jump(VideoPreviewActivity.class);
+                break;
+            case R.id.video_chat://视频聊天，推流和拉流
                 jump(VideoChatActivity.class);
                 break;
-            case R.id.video_chat:
-                jump(VideoChatActivity1.class);
+            case R.id.gl_video://分离了Shader
+                jump(GLViewVideoActivity.class);
                 break;
-            case R.id.gl_video:
-                jump(GLVideoActivity.class);
+            case R.id.gl_video2://未分离了Shader
+                jump(GLViewMediaActivity.class);
                 break;
             default:
                 break;

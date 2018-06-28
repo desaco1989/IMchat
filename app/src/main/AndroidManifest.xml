@@ -5,11 +5,9 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-feature android:name="android.hardware.camera" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-
 
     <application
         android:name=".MyApplication"
@@ -20,12 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activity.VideoChatActivity">
-
-        </activity>
-
-        <activity android:name="com.desaco.imchat.video_chat.VideoChatActivity1" />
-
         <activity android:name="com.desaco.imchat.IndexActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +25,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.desaco.imchat.video_chat.GLVideoActivity"/>
+
+        <activity android:name=".activity.VideoPreviewActivity" />
+        <activity android:name="com.desaco.imchat.activity.VideoChatActivity" />
+        <activity android:name="com.desaco.imchat.video_play.GLViewVideoActivity" />
+        <activity android:name=".video_play.GLViewMediaActivity" />
 
     </application>
 
