@@ -111,35 +111,36 @@ public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         LogUtils.logI("onSurfaceCreated...");
 
-        mTextureID = GlUtil.createTextureID();
+//        mTextureID = GlUtil.createTextureID();
+        mTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
         mSurface = new SurfaceTexture(mTextureID);
         mSurface.setOnFrameAvailableListener(this);
-
 
         //初始化时，视屏大窗口，播放视频
         mDirectDrawer = new ShaderDirectDrawer(mTextureID);
         mDirectDrawer.setFromCamera(true);
 
+        //初始化时，小窗口获取的图片，预览视频 推流
+//        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
+        //----------- TODO
+        mBitmapTextureID = GlUtil.createTextureID();
+        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
+        mSamllSurface.setOnFrameAvailableListener(this);
+        //-------------
+        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
+        mBitmapDirectDrawer.setFromCamera(true);
+
+        mDirectDrawersList.add(mBitmapDirectDrawer);
+        mDirectDrawersList.add(mDirectDrawer);
+
+
+        LogUtils.logI("mTextureID: " + mBitmapTextureID);
+        LogUtils.logI("mTextureID: " + mTextureID);
+
         //TODO 开启手机后摄像头
         CameraCapture.get().openBackCamera();
         //TODO 开启手机前置摄像头
 //        CameraCapture.get().openFrontCamera();
-
-        //初始化时，小窗口获取的图片，预览视频 推流
-        mBitmapTextureID = GlUtil.loadTexture(mTextureResources.getPicBitmap());
-        //----------- TODO
-//        mBitmapTextureID = GlUtil.createTextureID();
-//        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
-//        mSamllSurface.setOnFrameAvailableListener(this);
-        //-------------
-        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
-        mBitmapDirectDrawer.setFromCamera(false);
-
-        mDirectDrawersList.add(mDirectDrawer);
-        mDirectDrawersList.add(mBitmapDirectDrawer);
-
-        LogUtils.logI("mTextureID: " + mBitmapTextureID);
-        LogUtils.logI("mTextureID: " + mTextureID);
     }
 
     @Override
@@ -149,7 +150,7 @@ public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, 
         GLES20.glViewport(0, 0, width, height);
         if (!CameraCapture.get().isPreviewing()) {
             //使用TextureView预览Camera
-            CameraCapture.get().doStartPreview(mSurface);
+            CameraCapture.get().doStartPreview(mSamllSurface);//mSamllSurface  mSurface
         }
 
 //        playVideo();
@@ -162,10 +163,10 @@ public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, 
         // 清除屏幕和深度缓存
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // 更新纹理
-        mSurface.updateTexImage();
+//        mSurface.updateTexImage();
 
         //
-//        mSamllSurface.updateTexImage();
+        mSamllSurface.updateTexImage();
 
         // mDirectDrawers中有两个对象，一个是绘制Camera传递过来的数据，一个是绘制由bitmap转换成的纹理
         for (int i = 0; i < mDirectDrawersList.size(); i++) {
