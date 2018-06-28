@@ -35,7 +35,6 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
 
-    //
     private Context mContext;
     private SurfaceTexture mSurface;
     private SurfaceTexture mSamllSurface;
