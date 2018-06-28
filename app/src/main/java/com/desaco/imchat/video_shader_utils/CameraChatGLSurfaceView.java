@@ -31,7 +31,7 @@ import javax.microedition.khronos.opengles.GL10;
  * @version 1.0
  * @date 2017/3/1
  * <p>
- * 可以看成视频的推流
+ * 视频聊天，视频的推流和拉流
  */
 public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, SurfaceTexture.OnFrameAvailableListener {
 
@@ -240,9 +240,6 @@ public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, 
             mediaPlayer.start();
         }
     }
-
-
-
 
     /**
      * 移动小视频
