@@ -19,7 +19,7 @@ import java.nio.ShortBuffer;
  * Created by desaco on 2018/6/28.
  */
 
-public class GLShader {
+public class VideoGLShader {
 
     private FloatBuffer textureBuffer;
     private static float squareSize = 1.0f;
@@ -51,7 +51,7 @@ public class GLShader {
     //    private float[] videoTextureTransform = new float[16];
 //    private float[] videoTextureTransform;
 
-    public GLShader(Context context, int texture[]) {
+    public VideoGLShader(Context context, int texture[]) {
         textures = texture;
 //        videoTextureTransform = videoTextureTransform;
         setupGraphics(context);

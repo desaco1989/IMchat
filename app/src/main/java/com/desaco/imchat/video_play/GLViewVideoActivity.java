@@ -25,7 +25,6 @@ import com.desaco.imchat.utils.CommonUtils;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -176,7 +175,7 @@ public class GLViewVideoActivity extends Activity implements GLSurfaceView.Rende
         }
     }
 
-    private GLShader mGLShader;
+    private VideoGLShader mGLShader;
     private int[] textures = new int[1];
     private float[] videoTextureTransform = new float[16];
 
@@ -184,12 +183,12 @@ public class GLViewVideoActivity extends Activity implements GLSurfaceView.Rende
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.e("desaco", "1.onSurfaceCreated 屏幕创建！");
 
-        mGLShader = new GLShader(context,textures);
+        mGLShader = new VideoGLShader(context,textures);
         videoTexture = new SurfaceTexture(textures[0]);
         videoTexture.setOnFrameAvailableListener(this);
 
         Surface surface = new Surface(videoTexture);
-        mediaPlayer.setSurface(surface);
+        mediaPlayer.setSurface(surface);//TODO
         surface.release();
     }
 

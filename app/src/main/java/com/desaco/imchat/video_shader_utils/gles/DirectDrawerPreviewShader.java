@@ -16,7 +16,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class ShaderDirectDrawer {
+public class DirectDrawerPreviewShader {
     // 顶点缓存
     private FloatBuffer vertexBuffer;
     // 纹理坐标映射缓存
@@ -71,7 +71,7 @@ public class ShaderDirectDrawer {
     }
 
 
-    public ShaderDirectDrawer(int texture) {
+    public DirectDrawerPreviewShader(int texture) {
         String vertextShader = TextResourceReader.readTextFileFromResource(MyApplication.getContext()
                 , R.raw.video_vertex_shader);
         String fragmentShader;

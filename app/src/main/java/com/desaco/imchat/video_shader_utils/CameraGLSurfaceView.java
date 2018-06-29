@@ -16,8 +16,7 @@ import android.view.ViewConfiguration;
 import com.desaco.imchat.utils.DisplayUtil;
 import com.desaco.imchat.utils.GlUtil;
 import com.desaco.imchat.utils.LogUtils;
-import com.desaco.imchat.video_shader_utils.gles.GLShaderTexture;
-import com.desaco.imchat.video_shader_utils.gles.ShaderDirectDrawer;
+import com.desaco.imchat.video_shader_utils.gles.DirectDrawerPreviewShader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,8 +41,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     private int mTextureID = -1;
     private int mBitmapTextureID = -1;
 
-    private ShaderDirectDrawer mDirectDrawer;
-    private ShaderDirectDrawer mBitmapDirectDrawer;
+    private DirectDrawerPreviewShader mDirectDrawer;
+    private DirectDrawerPreviewShader mBitmapDirectDrawer;
 
     private TextureResources mTextureResources;
 
@@ -104,8 +103,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
         mTextureResources = TextureResources.getInstance();
     }
 
-    private List<ShaderDirectDrawer> mDirectDrawersList;
-    private GLShaderTexture mGLShader;
+    private List<DirectDrawerPreviewShader> mDirectDrawersList;
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -117,7 +115,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 
 
         //初始化时，视屏大窗口，播放视频
-        mDirectDrawer = new ShaderDirectDrawer(mTextureID);
+        mDirectDrawer = new DirectDrawerPreviewShader(mTextureID);
         mDirectDrawer.setFromCamera(true);
 
         //TODO 开启手机后摄像头
@@ -132,7 +130,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 //        mSamllSurface = new SurfaceTexture(mBitmapTextureID);
 //        mSamllSurface.setOnFrameAvailableListener(this);
         //-------------
-        mBitmapDirectDrawer = new ShaderDirectDrawer(mBitmapTextureID);
+        mBitmapDirectDrawer = new DirectDrawerPreviewShader(mBitmapTextureID);
         mBitmapDirectDrawer.setFromCamera(false);
 
         mDirectDrawersList.add(mDirectDrawer);
@@ -169,7 +167,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
 
         // mDirectDrawers中有两个对象，一个是绘制Camera传递过来的数据，一个是绘制由bitmap转换成的纹理
         for (int i = 0; i < mDirectDrawersList.size(); i++) {
-            ShaderDirectDrawer directDrawer = mDirectDrawersList.get(i);
+            DirectDrawerPreviewShader directDrawer = mDirectDrawersList.get(i);
             if (i == 0) {
                 directDrawer.resetMatrix();
             } else {
@@ -331,7 +329,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements Renderer, Surf
     }
 
     private void changeThumbnailPosition() {
-        ShaderDirectDrawer directDrawer = mDirectDrawersList.remove(mDirectDrawersList.size() - 1);
+        DirectDrawerPreviewShader directDrawer = mDirectDrawersList.remove(mDirectDrawersList.size() - 1);
         mDirectDrawersList.add(0, directDrawer);
     }
 
