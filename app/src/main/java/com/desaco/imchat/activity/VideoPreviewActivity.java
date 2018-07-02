@@ -11,6 +11,7 @@ import com.desaco.imchat.video_shader_utils.CameraGLSurfaceView;
 
 /**
  * <p>
+ *     https://blog.csdn.net/a296777513/article/details/70495534
  * Android OpenGL渲染双视频（类微信视频聊天）- https://github.com/296777513/AndroidOpenGL
  * 视频聊天的推流和拉流，两人视频和多人视频聊天实现
  *

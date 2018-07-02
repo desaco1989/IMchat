@@ -41,7 +41,7 @@ public class CameraChatGLSurfaceView extends GLSurfaceView implements Renderer, 
     private int mTextureID = -1;
     private int mBitmapTextureID = -1;
 
-    private DirectDrawerPreviewShader mDirectDrawer;
+    private DirectDrawerPreviewShader mDirectDrawer;//TODO
     private DirectDrawerPreviewShader mBitmapDirectDrawer;
 
     private TextureResources mTextureResources;
